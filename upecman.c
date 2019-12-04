@@ -139,12 +139,12 @@
 t_game pinkyMov(t_game g);
 
 int main(int argc, char *argv[]) {
-	IFDEBUG("main()\n");
+	/*IFDEBUG("main()\n");*/
 	int opt; /* return from getopt() */
 	t_game g; /* the game */
 	const char *sready = "Are you ready? (y/n)"; /* ready string */
 	int kin; /* keyboard input */
-	IFDEBUG("Starting optarg loop...\n");
+	/*IFDEBUG("Starting optarg loop...\n");*/
 	/*  getopt() configured options:
 	 *        -h  help
 	 *        -c  copyright & version
@@ -186,7 +186,7 @@ int main(int argc, char *argv[]) {
 	}
 	clear();
 	printlab(g);
-	while(1) { //laço para rodar o jogo
+	while(1) { /*laço para rodar o jogo*/
 		g = MovPac(g);
 		g = MovPacDir(g);
 		g = blinkymov(g);
@@ -200,7 +200,7 @@ int main(int argc, char *argv[]) {
 }
 
 /*--------------------------- Contagem de Pontos ----------------------------------------------- */
-// Funcao comer os Dots
+/* Funcao comer os Dots */
 
 t_game pacDots(t_game g) {
 	int j = 0;
@@ -220,7 +220,7 @@ t_game pacDots(t_game g) {
 	return g;
 }
 
-// Verifica se o jogador terminou o nivel
+/* Verifica se o jogador terminou o nivel */
 
 /* -------------------------- Movimentaçao do Pacman -------------------------------------------- */
 t_game MovPac(t_game g) {
@@ -592,7 +592,7 @@ void copyr(void) {
 *
 */
 t_game upecman_init(void) {
-	IFDEBUG("init()");
+	/*IFDEBUG("init()");*/
 	/* initialization */
 	t_game g;
 	int f, y;
@@ -663,7 +663,7 @@ t_game upecman_init(void) {
 *
 */
 void printlab(t_game g) {
-	IFDEBUG("printlab()");
+	/*IFDEBUG("printlab()");*/
 	int y,i,j,f;
 	/*clear(); / * clear the screen */
 	for(y = 0; y < LABL; y++)
