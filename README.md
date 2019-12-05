@@ -1,5 +1,7 @@
 # Pacman
 
+## Recomendo usar o workspace do gitpod [aqui](gitpod.io/#https://github.com/Barbozah/Pacman).
+
 ## Para compilar execute
 ```bash
 makefile pacman
