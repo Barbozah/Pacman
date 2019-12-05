@@ -70,6 +70,7 @@
 /* ---------------------------------------------------------------------- */
 
 /* includes */
+#include <cstddef>
 #include <stdio.h> /* Standard I/O functions */
 #include <stdlib.h> /* Miscellaneous functions (rand, malloc, srand)*/
 #include <ncurses.h> /* Screen handling and optimisation functions */
@@ -191,7 +192,9 @@ int main(int argc, char *argv[]) {
 		g = MovPacDir(g);
 		g = blinkymov(g);
 		g = pinkyMov(g);
-		mvprintw(10,25,"S C O R E: -- ");
+        char score[20] = "";
+        sprintf(score, "S C O R E: %d", g.pacman.score);
+		mvprintw(10,25, score);
 		refresh();
 		usleep(16667); /* wait 16666 microseconds to avoid frying the processor (1/60 s) */
 	}
@@ -214,8 +217,8 @@ t_game pacDots(t_game g) {
 		g.pacman.pellet++;
 		g.pacman.score = g.pacman.score + 50;
 		g.lab[y][x] = ' ';
-		for(j = blinky; j <= clyde; j++)
-			g.ghost[j].mode = afraid;
+		/*for(j = blinky; j <= clyde; j++)
+			g.ghost[j].mode = afraid;*/
 	}
 	return g;
 }
@@ -250,30 +253,29 @@ t_game MovPac(t_game g) {
 			}
 			break;
 		case 's':
-		   if(g.lab[g.pacman.pos.y+1][g.pacman.pos.x] != '#')
-		   {
-		       mvprintw(g.pacman.pos.y, g.pacman.pos.x, " ");
-		       g.pacman.pos.y += 1;
-		       mvprintw(g.pacman.pos.y, g.pacman.pos.x, "@");
-		       g.pacman.dir = down;
-		       mvchgat(g.pacman.pos.y, g.pacman.pos.x, 1, A_BOLD, 6, NULL);
-		       refresh();
-		       usleep(TEMP);           
-		   }
-		   break;
+		    if(g.lab[g.pacman.pos.y+1][g.pacman.pos.x] != '#') {
+		        mvprintw(g.pacman.pos.y, g.pacman.pos.x, " ");
+		        g.pacman.pos.y += 1;
+		        mvprintw(g.pacman.pos.y, g.pacman.pos.x, "@");
+		        g.pacman.dir = down;
+		        mvchgat(g.pacman.pos.y, g.pacman.pos.x, 1, A_BOLD, 6, NULL);
+		        refresh();
+		        usleep(TEMP);
+		    }
+		    break;
 		case 'd':
-		   if(g.lab[g.pacman.pos.y][g.pacman.pos.x+1] != '#')
-		   {
-		       mvprintw(g.pacman.pos.y, g.pacman.pos.x, " ");
-		       g.pacman.pos.x += 1;
-		       mvprintw(g.pacman.pos.y, g.pacman.pos.x, "@");
-		       g.pacman.dir = right;
-		       mvchgat(g.pacman.pos.y, g.pacman.pos.x, 1, A_BOLD, 6, NULL);
-		       refresh();
-		       usleep(TEMP);           
-		   }
-		   break;
+		    if(g.lab[g.pacman.pos.y][g.pacman.pos.x+1] != '#') {
+		        mvprintw(g.pacman.pos.y, g.pacman.pos.x, " ");
+		        g.pacman.pos.x += 1;
+		        mvprintw(g.pacman.pos.y, g.pacman.pos.x, "@");
+		        g.pacman.dir = right;
+		        mvchgat(g.pacman.pos.y, g.pacman.pos.x, 1, A_BOLD, 6, NULL);
+		        refresh();
+		        usleep(TEMP);
+		    }
+		    break;
 	}
+    g = pacDots(g);
 	return g;
 }
 
@@ -285,6 +287,7 @@ t_game MovPacDir(t_game g) {
 		case up:
 			if(g.lab[g.pacman.pos.y-1][g.pacman.pos.x] != '#') {
 				mvprintw(g.pacman.pos.y, g.pacman.pos.x, " ");
+                g.lab[g.pacman.pos.y][g.pacman.pos.x] = ' ';
             	g.pacman.pos.y -= 1;
             	mvprintw(g.pacman.pos.y, g.pacman.pos.x, "@");
             	g.pacman.dir = up;
@@ -296,6 +299,7 @@ t_game MovPacDir(t_game g) {
        	case left:
            	if(g.lab[g.pacman.pos.y][g.pacman.pos.x-1] != '#') {
             	mvprintw(g.pacman.pos.y, g.pacman.pos.x, " ");
+                g.lab[g.pacman.pos.y][g.pacman.pos.x] = ' ';
             	if(g.pacman.pos.y == 10 && g.pacman.pos.x == 0){
             		g.pacman.pos.x = 20;
                 	mvprintw(g.pacman.pos.y, g.pacman.pos.x, "@");
@@ -312,6 +316,7 @@ t_game MovPacDir(t_game g) {
        	case down:
            	if(g.lab[g.pacman.pos.y+1][g.pacman.pos.x] != '#') {
            		mvprintw(g.pacman.pos.y, g.pacman.pos.x, " ");
+                g.lab[g.pacman.pos.y][g.pacman.pos.x] = ' ';
             	g.pacman.pos.y += 1;
             	mvprintw(g.pacman.pos.y, g.pacman.pos.x, "@");
                	g.pacman.dir = down;
@@ -324,6 +329,7 @@ t_game MovPacDir(t_game g) {
            	if(g.lab[g.pacman.pos.y][g.pacman.pos.x+1] != '#') {
                	g.pacman.dir = right;
                	mvprintw(g.pacman.pos.y, g.pacman.pos.x, " ");
+                g.lab[g.pacman.pos.y][g.pacman.pos.x] = ' ';
                	if(g.pacman.pos.x == 19 && g.pacman.pos.y == 10){
                    	g.pacman.pos.x = 0;
                    	mvprintw(g.pacman.pos.y, g.pacman.pos.x, "@");
@@ -344,8 +350,8 @@ t_game MovPacDir(t_game g) {
 t_game blinkymov(t_game g) {
    	int x1,x2,y1,y2;
    	float hipo1,hipo2;
-   	y1= g.pacman.pos.y;
-   	x1= g.pacman.pos.x;
+   	y1=g.pacman.pos.y;
+   	x1=g.pacman.pos.x;
    	x2=g.ghost[blinky].pos.x;
    	y2=g.ghost[blinky].pos.y;
    	if(g.lab[g.ghost[blinky].pos.y-1][g.ghost[blinky].pos.x] != '#')
@@ -354,12 +360,16 @@ t_game blinkymov(t_game g) {
                	hipo1 = hipo(x1,y1,x2,y2);
                	y2=g.ghost[blinky].pos.y-1;
                	hipo2 = hipo(x1,y1,x2,y2);
-
                	if(hipo2 < hipo1) {
-                   	mvprintw(g.ghost[blinky].pos.y, g.ghost[blinky].pos.x, " ");
+                    char c[2];
+                    sprintf(c, "%c", g.lab[g.ghost[blinky].pos.y][g.ghost[blinky].pos.x]);
+                   	mvprintw(g.ghost[blinky].pos.y, g.ghost[blinky].pos.x, c);
+                    mvchgat(g.ghost[blinky].pos.y, g.ghost[blinky].pos.x, 1, A_BOLD, 6, NULL);
+                   	refresh();
                    	g.ghost[blinky].pos.y -= 1;
                    	g.ghost[blinky].dir = up;
                    	mvprintw(g.ghost[blinky].pos.y, g.ghost[blinky].pos.x, "B");
+                    mvchgat(g.ghost[blinky].pos.y, g.ghost[blinky].pos.x, 1, A_BOLD, 1, NULL);
                    	refresh();
                    	usleep(temp);
                    	return g;
@@ -368,16 +378,20 @@ t_game blinkymov(t_game g) {
        	}
    	if(g.lab[g.ghost[blinky].pos.y+1][g.ghost[blinky].pos.x] != '#')
        	if(g.lab[g.ghost[blinky].pos.y+1][g.ghost[blinky].pos.x] != '-') {
-           	
            	if(g.ghost[blinky].dir != up) {
                	hipo1 = hipo(x1,y1,x2,y2);
                	y2=g.ghost[blinky].pos.y+1;
                	hipo2 = hipo(x1,y1,x2,y2);
                	if(hipo2 < hipo1) {
-                   	mvprintw(g.ghost[blinky].pos.y, g.ghost[blinky].pos.x, " ");
+                    char c[2];
+                    sprintf(c, "%c", g.lab[g.ghost[blinky].pos.y][g.ghost[blinky].pos.x]);
+                   	mvprintw(g.ghost[blinky].pos.y, g.ghost[blinky].pos.x, c);
+                    mvchgat(g.ghost[blinky].pos.y, g.ghost[blinky].pos.x, 1, A_BOLD, 6, NULL);
+                   	refresh();
                    	g.ghost[blinky].pos.y += 1;
                    	g.ghost[blinky].dir = down;
                    	mvprintw(g.ghost[blinky].pos.y, g.ghost[blinky].pos.x, "B");
+                    mvchgat(g.ghost[blinky].pos.y, g.ghost[blinky].pos.x, 1, A_BOLD, 1, NULL);
                    	refresh();
                    	usleep(temp);
                    	return g;
@@ -389,6 +403,7 @@ t_game blinkymov(t_game g) {
            	if(g.ghost[0].pos.x == 19 && g.ghost[0].pos.y == 10) {
                	g.ghost[0].pos.x = 0;
                	mvprintw(g.ghost[0].pos.y, g.ghost[0].pos.x, "B");
+                mvchgat(g.ghost[blinky].pos.y, g.ghost[blinky].pos.x, 1, A_BOLD, 1, NULL);
                	refresh();
                	usleep(temp);
                	return g;
@@ -397,10 +412,19 @@ t_game blinkymov(t_game g) {
                	x2=g.ghost[0].pos.x+1;
                	hipo2 = hipo(x1,y1,x2,y2);
                	if(hipo2 < hipo1) {
-                   	mvprintw(g.ghost[0].pos.y, g.ghost[0].pos.x, " ");
+                    char c[2];
+                    sprintf(c, "%c", g.lab[g.ghost[blinky].pos.y][g.ghost[blinky].pos.x]);
+                    if(c[0] == 'B'){
+                        char s = ' ';
+                        sprintf(c, "%c", s);
+                    }
+                   	mvprintw(g.ghost[0].pos.y, g.ghost[0].pos.x, c);
+                    mvchgat(g.ghost[blinky].pos.y, g.ghost[blinky].pos.x, 1, A_BOLD, 6, NULL);
+                   	refresh();
                    	g.ghost[0].pos.x += 1;
                    	g.ghost[0].dir = right;
                    	mvprintw(g.ghost[0].pos.y, g.ghost[0].pos.x, "B");
+                    mvchgat(g.ghost[blinky].pos.y, g.ghost[blinky].pos.x, 1, A_BOLD, 1, NULL);
                    	refresh();
                    	usleep(temp);
                    	return g;
@@ -412,6 +436,7 @@ t_game blinkymov(t_game g) {
            	if(g.ghost[0].pos.y == 10 && g.ghost[0].pos.x == 0) {
 				g.ghost[0].pos.x = 20;
 				mvprintw(g.ghost[0].pos.y, g.ghost[0].pos.x, "B");
+                mvchgat(g.ghost[blinky].pos.y, g.ghost[blinky].pos.x, 1, A_BOLD, 1, NULL);
 				refresh();
 				usleep(temp);
 				return g;
@@ -421,10 +446,19 @@ t_game blinkymov(t_game g) {
 				x2=g.ghost[0].pos.x-1;
 				hipo2 = hipo(x1,y1,x2,y2);
 				if(hipo2 < hipo1) {
-					mvprintw(g.ghost[0].pos.y, g.ghost[0].pos.x, " ");
+                    char c[2];
+                    sprintf(c, "%c", g.lab[g.ghost[blinky].pos.y][g.ghost[blinky].pos.x]);
+                    if(c[0] == 'B' || c[0] == '@'){
+                        char s = ' ';
+                        sprintf(c, "%c", s);
+                    }
+					mvprintw(g.ghost[0].pos.y, g.ghost[0].pos.x, c);
+                    mvchgat(g.ghost[blinky].pos.y, g.ghost[blinky].pos.x, 1, A_BOLD, 6, NULL);
+                   	refresh();
 					g.ghost[0].pos.x -= 1;
 					g.ghost[0].dir = left;
 					mvprintw(g.ghost[0].pos.y, g.ghost[0].pos.x, "B");
+                    mvchgat(g.ghost[blinky].pos.y, g.ghost[blinky].pos.x, 1, A_BOLD, 1, NULL);
 					refresh();
 					usleep(temp);
 					return g;
@@ -433,40 +467,68 @@ t_game blinkymov(t_game g) {
        	}
    	if(g.lab[g.ghost[0].pos.y-1][g.ghost[0].pos.x] != '#')
        	if(g.lab[g.ghost[0].pos.y-1][g.ghost[0].pos.x] != '-') {
-			mvprintw(g.ghost[0].pos.y, g.ghost[0].pos.x, " ");
+            char c[2];
+            sprintf(c, "%c", g.lab[g.ghost[blinky].pos.y][g.ghost[blinky].pos.x]);
+			mvprintw(g.ghost[0].pos.y, g.ghost[0].pos.x, c);
+            mvchgat(g.ghost[blinky].pos.y, g.ghost[blinky].pos.x, 1, A_BOLD, 6, NULL);
+            refresh();
 			g.ghost[0].pos.y -= 1;
 			g.ghost[0].dir = up;
 			mvprintw(g.ghost[0].pos.y, g.ghost[0].pos.x, "B");
+            mvchgat(g.ghost[blinky].pos.y, g.ghost[blinky].pos.x, 1, A_BOLD, 1, NULL);
 			refresh();
 			usleep(temp);
 			return g;
        	}
    	if(g.lab[g.ghost[0].pos.y][g.ghost[0].pos.x-1] != '#')
        if(g.lab[g.ghost[0].pos.y][g.ghost[0].pos.x-1] != '-') {
-			mvprintw(g.ghost[0].pos.y, g.ghost[0].pos.x, " ");
+            char c[2];
+            sprintf(c, "%c", g.lab[g.ghost[blinky].pos.y][g.ghost[blinky].pos.x]);
+            if(c[0] == 'B' || c[0] == '@'){
+                char s = ' ';
+                sprintf(c, "%c", s);
+            }
+			mvprintw(g.ghost[0].pos.y, g.ghost[0].pos.x, c);
+            mvchgat(g.ghost[blinky].pos.y, g.ghost[blinky].pos.x, 1, A_BOLD, 6, NULL);
+            refresh();
 			g.ghost[0].pos.x -= 1;
 			g.ghost[0].dir = left;
 			mvprintw(g.ghost[0].pos.y, g.ghost[0].pos.x, "B");
+            mvchgat(g.ghost[blinky].pos.y, g.ghost[blinky].pos.x, 1, A_BOLD, 1, NULL);
 			refresh();
 			usleep(temp);
 			return g;
        	}
    	if(g.lab[g.ghost[0].pos.y+1][g.ghost[0].pos.x] != '#')
        	if(g.lab[g.ghost[0].pos.y+1][g.ghost[0].pos.x] != '-') {
-			mvprintw(g.ghost[0].pos.y, g.ghost[0].pos.x, " ");
+            char c[2];
+            sprintf(c, "%c", g.lab[g.ghost[blinky].pos.y][g.ghost[blinky].pos.x]);
+			mvprintw(g.ghost[0].pos.y, g.ghost[0].pos.x, c);
+            mvchgat(g.ghost[blinky].pos.y, g.ghost[blinky].pos.x, 1, A_BOLD, 6, NULL);
+            refresh();
 			g.ghost[0].pos.y += 1;
 			g.ghost[0].dir = down;
 			mvprintw(g.ghost[0].pos.y, g.ghost[0].pos.x, "B");
+            mvchgat(g.ghost[blinky].pos.y, g.ghost[blinky].pos.x, 1, A_BOLD, 1, NULL);
 			refresh();
 			usleep(temp);
 			return g;
        	}
    	if(g.lab[g.ghost[0].pos.y][g.ghost[0].pos.x+1] != '#')
        	if(g.lab[g.ghost[0].pos.y][g.ghost[0].pos.x+1] != '-') {
-           	mvprintw(g.ghost[0].pos.y, g.ghost[0].pos.x, " ");
+            char c[2];
+            sprintf(c, "%c", g.lab[g.ghost[blinky].pos.y][g.ghost[blinky].pos.x]);
+            if(c[0] == 'B' || c[0] == '@'){
+                char s = ' ';
+                sprintf(c, "%c", s);
+            }
+           	mvprintw(g.ghost[0].pos.y, g.ghost[0].pos.x, c);
+            mvchgat(g.ghost[blinky].pos.y, g.ghost[blinky].pos.x, 1, A_BOLD, 6, NULL);
+            refresh();
            	g.ghost[0].pos.x += 1;
            	g.ghost[0].dir = right;
            	mvprintw(g.ghost[0].pos.y, g.ghost[0].pos.x, "B");
+            mvchgat(g.ghost[blinky].pos.y, g.ghost[blinky].pos.x, 1, A_BOLD, 1, NULL);
            	refresh();
            	usleep(temp);
            	return g;
@@ -474,50 +536,98 @@ t_game blinkymov(t_game g) {
    	return g;
 }
 
+
 /*------------------- MOVIMENTA PINKY ------------------*/
+
+t_pos nnPacman(t_game g, t_pos p1, t_pos p2){
+    int i, j, n = 99999, h;
+    t_pos r;
+    r.x = p1.x;
+    r.y = p1.y;
+    h = hipo(p1.x+1, p1.y, p2.x, p2.y);
+    if(h < n && g.lab[p1.y][p1.x+1] != '#'){
+        n = h;
+        r.x = p1.x+1;
+        r.y = p1.y;
+    }
+    h = hipo(p1.x-1, p1.y, p2.x, p2.y);
+    if(h < n && g.lab[p1.y][p1.x-1] != '#'){
+        n = h;
+        r.x = p1.x-1;
+        r.y = p1.y;
+    }
+    h = hipo(p1.x, p1.y+1, p2.x, p2.y);
+    if(h < n && g.lab[p1.y+1][p1.x] != '#'){
+        n = h;
+        r.x = p1.x;
+        r.y = p1.y+1;
+    }
+    h = hipo(p1.x, p1.y-1, p2.x, p2.y);
+    if(h < n && g.lab[p1.y][p1.x-1] != '#'){
+        n = h;
+        r.x = p1.x;
+        r.y = p1.y-1;
+    }
+    return r;
+    for(i=-1;i<2;i++){
+        for(j=-1;j<2;j++){
+            if(p1.y+i < 2 ||
+               p1.y+i >= 21 ||
+               p1.x+j < 2 ||
+               p1.x+j >= 19 ||
+               g.lab[p1.y+i][p1.x+j] == '#' ||
+               (i == -1 && j == -1) ||
+               (i == -1 && j == 1) ||
+               (i == 1 && j == -1) ||
+               (i == 1 && j == 1)){
+                continue;
+            }else{
+                int h = hipo(p1.x+i, p1.y+j, p2.x, p2.y);
+                if(h<n){
+                    n = h;
+                    r.x = p1.x+j;
+                    r.y = p1.y+i;
+                }
+            }
+        }
+    }
+    return r;
+}
+
 t_game pinkyMov(t_game g) {
-   	switch(g.pacman.dir) {
+    t_pos nn, p;
+    switch(g.pacman.dir) {
        	case up:
-           	if(g.lab[g.ghost[1].pos.y-4][g.ghost[1].pos.x] != '#') {
-				mvprintw(g.ghost[1].pos.y, g.ghost[1].pos.x, " ");
-				g.ghost[1].pos.y+= 4;
-				g.ghost[1].dir = up;
-				mvprintw(g.ghost[1].pos.y, g.ghost[1].pos.x, "P");
-				refresh();
-				usleep(temp);
-				break;
-           	}
+            p.x = g.pacman.pos.x;
+            p.y = g.pacman.pos.y-4;
+            break;
        	case down:
-           	if(g.lab[g.ghost[1].pos.y+4][g.ghost[1].pos.x] != '#') {
-				mvprintw(g.ghost[1].pos.y, g.ghost[1].pos.x, " ");
-				g.ghost[1].pos.y-= 4;
-				g.ghost[1].dir = down;
-				mvprintw(g.ghost[1].pos.y, g.ghost[1].pos.x, "P");
-				refresh();
-				usleep(temp);
-				break;
-           }
+           	p.x = g.pacman.pos.x;
+            p.y = g.pacman.pos.y+4;
+            break;
        	case right:
-			if(g.lab[g.ghost[1].pos.y][g.ghost[1].pos.x+4] != '#') {
-				mvprintw(g.ghost[1].pos.y, g.ghost[1].pos.x, " ");
-				g.ghost[1].pos.x += 4;
-				g.ghost[1].dir = right;
-				mvprintw(g.ghost[1].pos.y, g.ghost[1].pos.x, "P");
-				refresh();
-				usleep(temp);
-				break;
-          	}           
+			p.x = g.pacman.pos.x+4;
+            p.y = g.pacman.pos.y;
+            break;
        	case left:
-           if(g.lab[g.ghost[1].pos.y][g.ghost[1].pos.x-1] != '#') {
-				mvprintw(g.ghost[1].pos.y, g.ghost[1].pos.x, " ");
-				g.ghost[1].pos.x -= 4;
-				g.ghost[1].dir = left;
-				mvprintw(g.ghost[1].pos.y, g.ghost[1].pos.x, "P");
-				refresh();
-				usleep(temp);
-				break;
-           	}           
+            p.x = g.pacman.pos.x-4;
+            p.y = g.pacman.pos.y;
+            break;
    	}
+    p = g.pacman.pos;
+    nn = nnPacman(g, g.ghost[1].pos, p);
+    printf("%d, %d", nn.x, nn.y);
+    char c[2];
+    sprintf(c, "%c", g.lab[g.ghost[1].pos.y][g.ghost[1].pos.x]);
+    mvprintw(g.ghost[1].pos.y, g.ghost[1].pos.x, c);
+    mvchgat(g.ghost[1].pos.y, g.ghost[1].pos.x, 1, A_BOLD, 6, NULL);
+    refresh();
+    g.ghost[1].pos.y = nn.y;
+    g.ghost[1].pos.x = nn.x;
+    mvprintw(g.ghost[1].pos.y, g.ghost[1].pos.x, "P");
+    mvchgat(g.ghost[1].pos.y, g.ghost[1].pos.x, 1, A_BOLD, 2, NULL);
+    refresh();
+    usleep(temp);
    	return g;
 }
 
