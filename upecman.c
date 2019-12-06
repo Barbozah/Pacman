@@ -189,9 +189,9 @@ int main(int argc, char *argv[]) {
 		g = MovPac(g);
 		g = MovPacDir(g);
 		g = blinkymov(g);
-		/*g = pinkyMov(g);*/
-        /*g = inkyMov(g);*/
-        /*g = clydeMov(g);*/
+		g = pinkyMov(g);
+        g = inkyMov(g);
+        g = clydeMov(g);
         char score[20] = "";
         sprintf(score, "S C O R E: %d", g.pacman.score);
 		mvprintw(10,25, score);
