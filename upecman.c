@@ -189,8 +189,9 @@ int main(int argc, char *argv[]) {
 		g = MovPac(g);
 		g = MovPacDir(g);
 		g = blinkymov(g);
-		g = pinkyMov(g);
-        g = inkyMov(g);
+		/*g = pinkyMov(g);*/
+        /*g = inkyMov(g);*/
+        /*g = clydeMov(g);*/
         char score[20] = "";
         sprintf(score, "S C O R E: %d", g.pacman.score);
 		mvprintw(10,25, score);
@@ -205,7 +206,7 @@ int main(int argc, char *argv[]) {
 /* Funcao comer os Dots */
 
 t_game pacDots(t_game g) {
-	/*int j = 0;*/
+	int j = 0;
 	int x = g.pacman.pos.x;
 	int y = g.pacman.pos.y;
 	if(g.lab[y][x] == '.') {
@@ -216,8 +217,9 @@ t_game pacDots(t_game g) {
 		g.pacman.pellet++;
 		g.pacman.score = g.pacman.score + 50;
 		g.lab[y][x] = ' ';
-		/*for(j = blinky; j <= clyde; j++)
-			g.ghost[j].mode = afraid;*/
+		for(j = blinky; j <= clyde; j++)
+			g.ghost[j].mode = afraid;
+            g.ghost[j].afraidCount = 0;
 	}
 	return g;
 }
@@ -345,8 +347,33 @@ t_game MovPacDir(t_game g) {
    	return g;
 }
 
-/* ---------------------------BLINKY MOV------------------------------------------- */
+/* -------------------------- Movimentaçao do BLINKY--------------------------------------------- */
 t_game blinkymov(t_game g) {
+    if(g.ghost[blinky].mode == afraid){
+        if(g.ghost[blinky].afraidCount > STEPSONAFRAID){
+            g.ghost[blinky].mode = chase;
+            g.ghost[blinky].afraidCount = 0;
+        }else{
+            g.ghost[blinky].afraidCount++;
+            char c[2];
+            t_pos nn = fartherNeighbor(g, g.ghost[blinky].pos, g.pacman.pos);
+            sprintf(c, "%c", g.lab[g.ghost[blinky].pos.y][g.ghost[blinky].pos.x]);
+            if(c[0] == 'B' || c[0] == 'P' || c[0] == 'I' || c[0] == 'C' || c[0] == '@'){
+                sprintf(c, "%c", ' ');
+            }
+            mvprintw(g.ghost[blinky].pos.y, g.ghost[blinky].pos.x, c);
+            mvchgat(g.ghost[blinky].pos.y, g.ghost[blinky].pos.x, 1, A_BOLD, 6, NULL);
+            refresh();
+            g.ghost[blinky].posAnterior = g.ghost[blinky].pos;
+            g.ghost[blinky].pos.y = nn.y;
+            g.ghost[blinky].pos.x = nn.x;
+            mvprintw(g.ghost[blinky].pos.y, g.ghost[blinky].pos.x, "B");
+            mvchgat(g.ghost[blinky].pos.y, g.ghost[blinky].pos.x, 1, A_BOLD, 5, NULL);
+            refresh();
+            usleep(temp);
+            return g;
+        }
+    }
    	int x1,x2,y1,y2;
    	float hipo1,hipo2;
    	y1=g.pacman.pos.y;
@@ -543,7 +570,7 @@ t_game blinkymov(t_game g) {
    	return g;
 }
 
-/*------------------- MOVIMENTA PINKY ------------------*/
+/* -------------------------- Movimentaçao do PINKY---------------------------------------------- */
 
 t_game pinkyMov(t_game g) {
     if(g.ghost[pinky].pos.x == 10 && 
@@ -562,30 +589,36 @@ t_game pinkyMov(t_game g) {
         mvchgat(g.ghost[pinky].pos.y, g.ghost[pinky].pos.x, 1, A_BOLD, 3, NULL);
         refresh();
         usleep(temp);
+        return g;
     }
     char c[2];
     t_pos nn, p;
     p = forwardPos(g.pacman.pos, g.pacman.dir, 4);
-    nn = nearestNeighbor(g, g.ghost[1].pos, p);
-    sprintf(c, "%c", g.lab[g.ghost[1].pos.y][g.ghost[1].pos.x]);
-    if(c[0] == 'B' || c[0] == 'P' || c[0] == 'I' || c[0] == 'C'){
+    nn = nearestNeighbor(g, g.ghost[pinky].pos, p);
+    if(nn.x == g.ghost[pinky].posAnterior.x && 
+        nn.y == g.ghost[pinky].posAnterior.y){
+        nn = fartherNeighbor(g, g.ghost[pinky].pos, p);
+    }
+    sprintf(c, "%c", g.lab[g.ghost[pinky].pos.y][g.ghost[pinky].pos.x]);
+    if(c[0] == 'B' || c[0] == 'P' || c[0] == 'I' || c[0] == 'C' || c[0] == '@'){
         sprintf(c, "%c", ' ');
     }
-    mvprintw(g.ghost[1].pos.y, g.ghost[1].pos.x, c);
-    mvchgat(g.ghost[1].pos.y, g.ghost[1].pos.x, 1, A_BOLD, 6, NULL);
+    mvprintw(g.ghost[pinky].pos.y, g.ghost[pinky].pos.x, c);
+    mvchgat(g.ghost[pinky].pos.y, g.ghost[pinky].pos.x, 1, A_BOLD, 6, NULL);
     refresh();
-    g.ghost[1].pos.y = nn.y;
-    g.ghost[1].pos.x = nn.x;
-    mvprintw(g.ghost[1].pos.y, g.ghost[1].pos.x, "P");
-    mvchgat(g.ghost[1].pos.y, g.ghost[1].pos.x, 1, A_BOLD, 2, NULL);
+    g.ghost[pinky].posAnterior = g.ghost[pinky].pos;
+    g.ghost[pinky].pos.y = nn.y;
+    g.ghost[pinky].pos.x = nn.x;
+    mvprintw(g.ghost[pinky].pos.y, g.ghost[pinky].pos.x, "P");
+    mvchgat(g.ghost[pinky].pos.y, g.ghost[pinky].pos.x, 1, A_BOLD, 2, NULL);
     refresh();
     usleep(temp);
    	return g;
 }
 
-/*------------------- MOVIMENTA INKY ------------------*/
+/* -------------------------- Movimentaçao do INKY----------------------------------------------- */
 
-t_game inkyMov(t_game g){
+t_game inkyMov(t_game g) {
     if(g.pacman.score < 30){
         return g;
     }
@@ -605,23 +638,107 @@ t_game inkyMov(t_game g){
         mvchgat(g.ghost[inky].pos.y, g.ghost[inky].pos.x, 1, A_BOLD, 3, NULL);
         refresh();
         usleep(temp);
+        return g;
     }
     char c[2];
     t_pos nn, aim, p = forwardPos(g.pacman.pos, g.pacman.dir, 2);
-    aim.x = p.x + (p.x - g.ghost[inky].pos.x);
-    aim.y = p.y + (p.y - g.ghost[inky].pos.y);
+    aim.x = 2*p.x - g.ghost[inky].pos.x;
+    aim.y = 2*p.y - g.ghost[inky].pos.y;
     nn = nearestNeighbor(g, g.ghost[inky].pos, aim);
+    if(nn.x == g.ghost[inky].posAnterior.x && 
+        nn.y == g.ghost[inky].posAnterior.y){
+        nn = fartherNeighbor(g, g.ghost[inky].pos, aim);
+    }
+    if(g.ghost[inky].mode == afraid){
+        if(g.ghost[inky].afraidCount > STEPSONAFRAID){
+            g.ghost[inky].mode = chase;
+            g.ghost[inky].afraidCount = 0;
+        }
+        nn = fartherNeighbor(g, g.ghost[inky].pos, g.pacman.pos);
+        g.ghost[inky].afraidCount++;
+    }
     sprintf(c, "%c", g.lab[g.ghost[inky].pos.y][g.ghost[inky].pos.x]);
-    if(c[0] == 'B' || c[0] == 'P' || c[0] == 'I' || c[0] == 'C'){
+    if(c[0] == 'B' || c[0] == 'P' || c[0] == 'I' || c[0] == 'C' || c[0] == '@'){
         sprintf(c, "%c", ' ');
     }
     mvprintw(g.ghost[inky].pos.y, g.ghost[inky].pos.x, c);
     mvchgat(g.ghost[inky].pos.y, g.ghost[inky].pos.x, 1, A_BOLD, 6, NULL);
     refresh();
+    g.ghost[inky].posAnterior = g.ghost[inky].pos;
     g.ghost[inky].pos.y = nn.y;
     g.ghost[inky].pos.x = nn.x;
     mvprintw(g.ghost[inky].pos.y, g.ghost[inky].pos.x, "I");
-    mvchgat(g.ghost[inky].pos.y, g.ghost[inky].pos.x, 1, A_BOLD, 3, NULL);
+    if(g.ghost[inky].mode == afraid){
+        mvchgat(g.ghost[inky].pos.y, g.ghost[inky].pos.x, 1, A_BOLD, 5, NULL);
+    }else{
+        mvchgat(g.ghost[inky].pos.y, g.ghost[inky].pos.x, 1, A_BOLD, 3, NULL);
+    }
+    refresh();
+    usleep(temp);
+    return g;
+}
+
+/* -------------------------- Movimentaçao do CLYDE---------------------------------------------- */
+
+t_game clydeMov(t_game g) {
+    if(g.pacman.pellet < 188/3){
+        return g;
+    }
+    if(g.ghost[clyde].pos.x == 10 && 
+        g.ghost[clyde].pos.y == 11){
+        mvprintw(11, 10, " ");
+        mvchgat(11, 10, 1, A_BOLD, 6, NULL);
+        refresh();
+        if(haveGhost(g, 10, 7)){
+            g.ghost[clyde].pos.y = 7;
+            g.ghost[clyde].pos.x = 9;
+        }else{
+            g.ghost[clyde].pos.y = 7;
+            g.ghost[clyde].pos.x = 10;
+        }
+        mvprintw(g.ghost[clyde].pos.y, g.ghost[clyde].pos.x, "C");
+        mvchgat(g.ghost[clyde].pos.y, g.ghost[clyde].pos.x, 1, A_BOLD, 3, NULL);
+        refresh();
+        usleep(temp);
+        return g;
+    }
+    char c[2];
+    t_pos nn;
+    if(g.ghost[clyde].mode == afraid){
+        if(g.ghost[clyde].afraidCount > STEPSONAFRAID){
+            g.ghost[clyde].mode = chase;
+            g.ghost[clyde].afraidCount = 0;
+            nn = nearestNeighbor(g, g.ghost[clyde].pos, g.pacman.pos);
+        }else{
+            nn = fartherNeighbor(g, g.ghost[clyde].pos, g.pacman.pos);
+            g.ghost[clyde].afraidCount++;
+        }
+    }else if(manhattanDistance(g.pacman.pos, g.ghost[clyde].pos) < 8) {
+        t_pos aim = g.ghost[clyde].starget;
+        nn = nearestNeighbor(g, g.ghost[clyde].pos, aim);
+    }else{
+        nn = nearestNeighbor(g, g.ghost[clyde].pos, g.pacman.pos);
+        if(nn.x == g.ghost[clyde].posAnterior.x && 
+            nn.y == g.ghost[clyde].posAnterior.y){
+            nn = fartherNeighbor(g, g.ghost[clyde].pos, g.pacman.pos);
+        }
+    }
+    sprintf(c, "%c", g.lab[g.ghost[clyde].pos.y][g.ghost[clyde].pos.x]);
+    if(c[0] == 'B' || c[0] == 'P' || c[0] == 'I' || c[0] == 'C' || c[0] == '@'){
+        sprintf(c, "%c", ' ');
+    }
+    mvprintw(g.ghost[clyde].pos.y, g.ghost[clyde].pos.x, c);
+    mvchgat(g.ghost[clyde].pos.y, g.ghost[clyde].pos.x, 1, A_BOLD, 6, NULL);
+    refresh();
+    g.ghost[clyde].posAnterior = g.ghost[clyde].pos;
+    g.ghost[clyde].pos.y = nn.y;
+    g.ghost[clyde].pos.x = nn.x;
+    mvprintw(g.ghost[clyde].pos.y, g.ghost[clyde].pos.x, "C");
+    if(g.ghost[clyde].mode == afraid) {
+        mvchgat(g.ghost[clyde].pos.y, g.ghost[clyde].pos.x, 1, A_BOLD, 5, NULL);
+    }else{
+        mvchgat(g.ghost[clyde].pos.y, g.ghost[clyde].pos.x, 1, A_BOLD, 4, NULL);
+    }
     refresh();
     usleep(temp);
     return g;
@@ -670,12 +787,17 @@ bool haveGhost(t_game g, int x, int y){
     return FALSE;
 }
 
-t_pos nearestNeighbor(t_game g, t_pos p1, t_pos p2){
+int manhattanDistance(t_pos p1, t_pos p2) {
+    return abs(p1.x-p2.x) + abs(p1.y-p2.y);
+}
+
+t_pos nearestNeighbor(t_game g, t_pos p1, t_pos p2) {
     int n = 99999, h;
     t_pos r;
     r.x = p1.x;
     r.y = p1.y;
     if(g.lab[p1.y][p1.x+1] != '#' &&
+        g.lab[p1.y][p1.x+1] != '-' &&
         p1.x + 1 < 19 &&
         !(p1.x+1 == 16 && p1.y == 10) &&
         !haveGhost(g, p1.x+1, p1.y)){
@@ -687,6 +809,7 @@ t_pos nearestNeighbor(t_game g, t_pos p1, t_pos p2){
         }
     }
     if(g.lab[p1.y][p1.x-1] != '#' &&
+        g.lab[p1.y][p1.x-1] != '-' &&
         p1.x - 1 > 0 &&
         !(p1.x-1 == 3 && p1.y == 10) &&
         !haveGhost(g, p1.x-1, p1.y)){
@@ -698,6 +821,7 @@ t_pos nearestNeighbor(t_game g, t_pos p1, t_pos p2){
         }
     }
     if(g.lab[p1.y+1][p1.x] != '#' &&
+        g.lab[p1.y+1][p1.x] != '-' &&
         p1.y + 1 < 22 &&
         !haveGhost(g, p1.x, p1.y+1)){
         h = hipo(p1.x, p1.y+1, p2.x, p2.y);
@@ -708,10 +832,65 @@ t_pos nearestNeighbor(t_game g, t_pos p1, t_pos p2){
         }
     }
     if(g.lab[p1.y-1][p1.x] != '#' &&
+        g.lab[p1.y-1][p1.x] != '-' &&
         p1.y - 1 > 0 &&
         !haveGhost(g, p1.x, p1.y-1)){
         h = hipo(p1.x, p1.y-1, p2.x, p2.y);
         if(h < n){
+            n = h;
+            r.x = p1.x;
+            r.y = p1.y-1;
+        }
+    }
+    return r;
+}
+
+t_pos fartherNeighbor(t_game g, t_pos p1, t_pos p2) {
+    int n = -99999, h;
+    t_pos r;
+    r.x = p1.x;
+    r.y = p1.y;
+    if(g.lab[p1.y][p1.x+1] != '#' &&
+        g.lab[p1.y][p1.x+1] != '-' &&
+        p1.x + 1 < 19 &&
+        !(p1.x+1 == 16 && p1.y == 10) &&
+        !haveGhost(g, p1.x+1, p1.y)){
+        h = hipo(p1.x+1, p1.y, p2.x, p2.y);
+        if(h > n){
+            n = h;
+            r.x = p1.x+1;
+            r.y = p1.y;            
+        }
+    }
+    if(g.lab[p1.y][p1.x-1] != '#' &&
+        g.lab[p1.y][p1.x-1] != '-' &&
+        p1.x - 1 > 0 &&
+        !(p1.x-1 == 3 && p1.y == 10) &&
+        !haveGhost(g, p1.x-1, p1.y)){
+        h = hipo(p1.x-1, p1.y, p2.x, p2.y);
+        if(h > n){
+            n = h;
+            r.x = p1.x-1;
+            r.y = p1.y;
+        }
+    }
+    if(g.lab[p1.y+1][p1.x] != '#' &&
+        g.lab[p1.y+1][p1.x] != '-' &&
+        p1.y + 1 < 22 &&
+        !haveGhost(g, p1.x, p1.y+1)){
+        h = hipo(p1.x, p1.y+1, p2.x, p2.y);
+        if(h > n){
+            n = h;
+            r.x = p1.x;
+            r.y = p1.y+1;
+        }
+    }
+    if(g.lab[p1.y-1][p1.x] != '#' &&
+        g.lab[p1.y-1][p1.x] != '-' &&
+        p1.y - 1 > 0 &&
+        !haveGhost(g, p1.x, p1.y-1)){
+        h = hipo(p1.x, p1.y-1, p2.x, p2.y);
+        if(h > n){
             n = h;
             r.x = p1.x;
             r.y = p1.y-1;
@@ -789,6 +968,7 @@ t_game upecman_init(void) {
 	g.pacman.dir = left; /* pacman start direction */
 	g.pacman.life = 3; /* 3 lifes */
 	g.pacman.score = 0; /* 0 points */
+    g.pacman.pellet = 0;
 	for(f = blinky; f <= clyde; f++) /* blinky, pinky, inky and clyde */ {
        	switch(f) {
            	case blinky:
@@ -818,6 +998,7 @@ t_game upecman_init(void) {
        	}
 		g.ghost[f].dir = left; /* start direction and future direction: left */
 		g.ghost[f].mode = chase;
+        g.ghost[f].afraidCount = 0;
    	}
 	initscr(); /* start ncurses mode screen */
 	cbreak(); /* stop line buffering */

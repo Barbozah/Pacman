@@ -50,6 +50,7 @@
 #define LABC 21 /**< Number of columns in labyrinth */
 #define TEMP 300000
 #define temp 100000
+#define STEPSONAFRAID 20
 /* ---------------------------------------------------------------------- */
 /* globals */
 
@@ -112,8 +113,8 @@ typedef struct st_ghost
     t_pos posAnterior; /*posicao anterior do fantasma*/
     t_pos alvoDoModo[4];
     t_pos target;
-    t_pos posanterior;
     char item_anterior;
+    int afraidCount;
 } t_ghost;
 
 typedef struct st_pacdata
@@ -138,9 +139,12 @@ int levelforward(t_game g);
 t_game blinkymov(t_game g);
 t_game pinkyMov(t_game g);
 t_game inkyMov(t_game g);
+t_game clydeMov(t_game g);
 int hipo(int x, int y, int z, int w);
 t_pos forwardPos(t_pos start, int direc, int steps);
 t_pos nearestNeighbor(t_game g, t_pos p1, t_pos p2);
+t_pos fartherNeighbor(t_game g, t_pos p1, t_pos p2);
+int manhattanDistance(t_pos p1, t_pos p2);
 bool haveGhost(t_game g, int x, int y);
 bool ModoAfraid (t_ghost fantasma);
 int hipo(int x1, int y1, int x2, int y2);
