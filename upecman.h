@@ -32,6 +32,9 @@
 #ifndef VERSION
 #define VERSION "20160529.013231" /**< Version Number */
 #endif
+#ifndef bool
+#define bool unsigned short
+#endif
 
 /* Debug */
 #ifndef DEBUG /* gcc -DDEBUG=1 */
@@ -133,7 +136,12 @@ t_game MovPacDir(t_game g);
 t_game pacDots(t_game g); /* Comer pellets */
 int levelforward(t_game g);
 t_game blinkymov(t_game g);
+t_game pinkyMov(t_game g);
+t_game inkyMov(t_game g);
 int hipo(int x, int y, int z, int w);
+t_pos forwardPos(t_pos start, int direc, int steps);
+t_pos nearestNeighbor(t_game g, t_pos p1, t_pos p2);
+bool haveGhost(t_game g, int x, int y);
 bool ModoAfraid (t_ghost fantasma);
 int hipo(int x1, int y1, int x2, int y2);
 t_game clydemov(t_game g);

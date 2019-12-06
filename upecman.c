@@ -70,7 +70,7 @@
 /* ---------------------------------------------------------------------- */
 
 /* includes */
-#include <cstddef>
+#include <stddef.h>
 #include <stdio.h> /* Standard I/O functions */
 #include <stdlib.h> /* Miscellaneous functions (rand, malloc, srand)*/
 #include <ncurses.h> /* Screen handling and optimisation functions */
@@ -137,8 +137,6 @@
 *
 */
 
-t_game pinkyMov(t_game g);
-
 int main(int argc, char *argv[]) {
 	/*IFDEBUG("main()\n");*/
 	int opt; /* return from getopt() */
@@ -192,6 +190,7 @@ int main(int argc, char *argv[]) {
 		g = MovPacDir(g);
 		g = blinkymov(g);
 		g = pinkyMov(g);
+        g = inkyMov(g);
         char score[20] = "";
         sprintf(score, "S C O R E: %d", g.pacman.score);
 		mvprintw(10,25, score);
@@ -206,7 +205,7 @@ int main(int argc, char *argv[]) {
 /* Funcao comer os Dots */
 
 t_game pacDots(t_game g) {
-	int j = 0;
+	/*int j = 0;*/
 	int x = g.pacman.pos.x;
 	int y = g.pacman.pos.y;
 	if(g.lab[y][x] == '.') {
@@ -363,7 +362,10 @@ t_game blinkymov(t_game g) {
                	if(hipo2 < hipo1) {
                     char c[2];
                     sprintf(c, "%c", g.lab[g.ghost[blinky].pos.y][g.ghost[blinky].pos.x]);
-                   	mvprintw(g.ghost[blinky].pos.y, g.ghost[blinky].pos.x, c);
+                   	if(c[0] == 'B' || c[0] == 'P' || c[0] == 'I' || c[0] == 'C' || c[0] == '@'){
+                        sprintf(c, "%c", ' ');
+                    }
+                    mvprintw(g.ghost[blinky].pos.y, g.ghost[blinky].pos.x, c);
                     mvchgat(g.ghost[blinky].pos.y, g.ghost[blinky].pos.x, 1, A_BOLD, 6, NULL);
                    	refresh();
                    	g.ghost[blinky].pos.y -= 1;
@@ -385,7 +387,10 @@ t_game blinkymov(t_game g) {
                	if(hipo2 < hipo1) {
                     char c[2];
                     sprintf(c, "%c", g.lab[g.ghost[blinky].pos.y][g.ghost[blinky].pos.x]);
-                   	mvprintw(g.ghost[blinky].pos.y, g.ghost[blinky].pos.x, c);
+                   	if(c[0] == 'B' || c[0] == 'P' || c[0] == 'I' || c[0] == 'C' || c[0] == '@'){
+                        sprintf(c, "%c", ' ');
+                    }
+                    mvprintw(g.ghost[blinky].pos.y, g.ghost[blinky].pos.x, c);
                     mvchgat(g.ghost[blinky].pos.y, g.ghost[blinky].pos.x, 1, A_BOLD, 6, NULL);
                    	refresh();
                    	g.ghost[blinky].pos.y += 1;
@@ -414,9 +419,8 @@ t_game blinkymov(t_game g) {
                	if(hipo2 < hipo1) {
                     char c[2];
                     sprintf(c, "%c", g.lab[g.ghost[blinky].pos.y][g.ghost[blinky].pos.x]);
-                    if(c[0] == 'B'){
-                        char s = ' ';
-                        sprintf(c, "%c", s);
+                    if(c[0] == 'B' || c[0] == 'P' || c[0] == 'I' || c[0] == 'C' || c[0] == '@'){
+                        sprintf(c, "%c", ' ');
                     }
                    	mvprintw(g.ghost[0].pos.y, g.ghost[0].pos.x, c);
                     mvchgat(g.ghost[blinky].pos.y, g.ghost[blinky].pos.x, 1, A_BOLD, 6, NULL);
@@ -448,9 +452,8 @@ t_game blinkymov(t_game g) {
 				if(hipo2 < hipo1) {
                     char c[2];
                     sprintf(c, "%c", g.lab[g.ghost[blinky].pos.y][g.ghost[blinky].pos.x]);
-                    if(c[0] == 'B' || c[0] == '@'){
-                        char s = ' ';
-                        sprintf(c, "%c", s);
+                    if(c[0] == 'B' || c[0] == 'P' || c[0] == 'I' || c[0] == 'C' || c[0] == '@'){
+                        sprintf(c, "%c", ' ');
                     }
 					mvprintw(g.ghost[0].pos.y, g.ghost[0].pos.x, c);
                     mvchgat(g.ghost[blinky].pos.y, g.ghost[blinky].pos.x, 1, A_BOLD, 6, NULL);
@@ -469,6 +472,9 @@ t_game blinkymov(t_game g) {
        	if(g.lab[g.ghost[0].pos.y-1][g.ghost[0].pos.x] != '-') {
             char c[2];
             sprintf(c, "%c", g.lab[g.ghost[blinky].pos.y][g.ghost[blinky].pos.x]);
+            if(c[0] == 'B' || c[0] == 'P' || c[0] == 'I' || c[0] == 'C' || c[0] == '@'){
+                sprintf(c, "%c", ' ');
+            }
 			mvprintw(g.ghost[0].pos.y, g.ghost[0].pos.x, c);
             mvchgat(g.ghost[blinky].pos.y, g.ghost[blinky].pos.x, 1, A_BOLD, 6, NULL);
             refresh();
@@ -484,9 +490,8 @@ t_game blinkymov(t_game g) {
        if(g.lab[g.ghost[0].pos.y][g.ghost[0].pos.x-1] != '-') {
             char c[2];
             sprintf(c, "%c", g.lab[g.ghost[blinky].pos.y][g.ghost[blinky].pos.x]);
-            if(c[0] == 'B' || c[0] == '@'){
-                char s = ' ';
-                sprintf(c, "%c", s);
+            if(c[0] == 'B' || c[0] == 'P' || c[0] == 'I' || c[0] == 'C' || c[0] == '@'){
+                sprintf(c, "%c", ' ');
             }
 			mvprintw(g.ghost[0].pos.y, g.ghost[0].pos.x, c);
             mvchgat(g.ghost[blinky].pos.y, g.ghost[blinky].pos.x, 1, A_BOLD, 6, NULL);
@@ -503,6 +508,9 @@ t_game blinkymov(t_game g) {
        	if(g.lab[g.ghost[0].pos.y+1][g.ghost[0].pos.x] != '-') {
             char c[2];
             sprintf(c, "%c", g.lab[g.ghost[blinky].pos.y][g.ghost[blinky].pos.x]);
+            if(c[0] == 'B' || c[0] == 'P' || c[0] == 'I' || c[0] == 'C' || c[0] == '@'){
+                sprintf(c, "%c", ' ');
+            }
 			mvprintw(g.ghost[0].pos.y, g.ghost[0].pos.x, c);
             mvchgat(g.ghost[blinky].pos.y, g.ghost[blinky].pos.x, 1, A_BOLD, 6, NULL);
             refresh();
@@ -518,9 +526,8 @@ t_game blinkymov(t_game g) {
        	if(g.lab[g.ghost[0].pos.y][g.ghost[0].pos.x+1] != '-') {
             char c[2];
             sprintf(c, "%c", g.lab[g.ghost[blinky].pos.y][g.ghost[blinky].pos.x]);
-            if(c[0] == 'B' || c[0] == '@'){
-                char s = ' ';
-                sprintf(c, "%c", s);
+            if(c[0] == 'B' || c[0] == 'P' || c[0] == 'I' || c[0] == 'C' || c[0] == '@'){
+                sprintf(c, "%c", ' ');
             }
            	mvprintw(g.ghost[0].pos.y, g.ghost[0].pos.x, c);
             mvchgat(g.ghost[blinky].pos.y, g.ghost[blinky].pos.x, 1, A_BOLD, 6, NULL);
@@ -536,89 +543,34 @@ t_game blinkymov(t_game g) {
    	return g;
 }
 
-
 /*------------------- MOVIMENTA PINKY ------------------*/
 
-t_pos nnPacman(t_game g, t_pos p1, t_pos p2){
-    int i, j, n = 99999, h;
-    t_pos r;
-    r.x = p1.x;
-    r.y = p1.y;
-    h = hipo(p1.x+1, p1.y, p2.x, p2.y);
-    if(h < n && g.lab[p1.y][p1.x+1] != '#'){
-        n = h;
-        r.x = p1.x+1;
-        r.y = p1.y;
-    }
-    h = hipo(p1.x-1, p1.y, p2.x, p2.y);
-    if(h < n && g.lab[p1.y][p1.x-1] != '#'){
-        n = h;
-        r.x = p1.x-1;
-        r.y = p1.y;
-    }
-    h = hipo(p1.x, p1.y+1, p2.x, p2.y);
-    if(h < n && g.lab[p1.y+1][p1.x] != '#'){
-        n = h;
-        r.x = p1.x;
-        r.y = p1.y+1;
-    }
-    h = hipo(p1.x, p1.y-1, p2.x, p2.y);
-    if(h < n && g.lab[p1.y][p1.x-1] != '#'){
-        n = h;
-        r.x = p1.x;
-        r.y = p1.y-1;
-    }
-    return r;
-    for(i=-1;i<2;i++){
-        for(j=-1;j<2;j++){
-            if(p1.y+i < 2 ||
-               p1.y+i >= 21 ||
-               p1.x+j < 2 ||
-               p1.x+j >= 19 ||
-               g.lab[p1.y+i][p1.x+j] == '#' ||
-               (i == -1 && j == -1) ||
-               (i == -1 && j == 1) ||
-               (i == 1 && j == -1) ||
-               (i == 1 && j == 1)){
-                continue;
-            }else{
-                int h = hipo(p1.x+i, p1.y+j, p2.x, p2.y);
-                if(h<n){
-                    n = h;
-                    r.x = p1.x+j;
-                    r.y = p1.y+i;
-                }
-            }
-        }
-    }
-    return r;
-}
-
 t_game pinkyMov(t_game g) {
-    t_pos nn, p;
-    switch(g.pacman.dir) {
-       	case up:
-            p.x = g.pacman.pos.x;
-            p.y = g.pacman.pos.y-4;
-            break;
-       	case down:
-           	p.x = g.pacman.pos.x;
-            p.y = g.pacman.pos.y+4;
-            break;
-       	case right:
-			p.x = g.pacman.pos.x+4;
-            p.y = g.pacman.pos.y;
-            break;
-       	case left:
-            p.x = g.pacman.pos.x-4;
-            p.y = g.pacman.pos.y;
-            break;
-   	}
-    p = g.pacman.pos;
-    nn = nnPacman(g, g.ghost[1].pos, p);
-    printf("%d, %d", nn.x, nn.y);
+    if(g.ghost[pinky].pos.x == 10 && 
+        g.ghost[pinky].pos.y == 9){
+        mvprintw(9, 10, " ");
+        mvchgat(9, 10, 1, A_BOLD, 6, NULL);
+        refresh();
+        if(haveGhost(g, 10, 7)){
+            g.ghost[pinky].pos.y = 7;
+            g.ghost[pinky].pos.x = 9;
+        }else{
+            g.ghost[pinky].pos.y = 7;
+            g.ghost[pinky].pos.x = 10;
+        }
+        mvprintw(g.ghost[pinky].pos.y, g.ghost[pinky].pos.x, "P");
+        mvchgat(g.ghost[pinky].pos.y, g.ghost[pinky].pos.x, 1, A_BOLD, 3, NULL);
+        refresh();
+        usleep(temp);
+    }
     char c[2];
+    t_pos nn, p;
+    p = forwardPos(g.pacman.pos, g.pacman.dir, 4);
+    nn = nearestNeighbor(g, g.ghost[1].pos, p);
     sprintf(c, "%c", g.lab[g.ghost[1].pos.y][g.ghost[1].pos.x]);
+    if(c[0] == 'B' || c[0] == 'P' || c[0] == 'I' || c[0] == 'C'){
+        sprintf(c, "%c", ' ');
+    }
     mvprintw(g.ghost[1].pos.y, g.ghost[1].pos.x, c);
     mvchgat(g.ghost[1].pos.y, g.ghost[1].pos.x, 1, A_BOLD, 6, NULL);
     refresh();
@@ -629,6 +581,50 @@ t_game pinkyMov(t_game g) {
     refresh();
     usleep(temp);
    	return g;
+}
+
+/*------------------- MOVIMENTA INKY ------------------*/
+
+t_game inkyMov(t_game g){
+    if(g.pacman.score < 30){
+        return g;
+    }
+    if(g.ghost[inky].pos.x == 10 && 
+        g.ghost[inky].pos.y == 10){
+        mvprintw(10, 10, " ");
+        mvchgat(10, 10, 1, A_BOLD, 6, NULL);
+        refresh();
+        if(haveGhost(g, 10, 7)){
+            g.ghost[inky].pos.y = 7;
+            g.ghost[inky].pos.x = 9;
+        }else{
+            g.ghost[inky].pos.y = 7;
+            g.ghost[inky].pos.x = 10;
+        }
+        mvprintw(g.ghost[inky].pos.y, g.ghost[inky].pos.x, "I");
+        mvchgat(g.ghost[inky].pos.y, g.ghost[inky].pos.x, 1, A_BOLD, 3, NULL);
+        refresh();
+        usleep(temp);
+    }
+    char c[2];
+    t_pos nn, aim, p = forwardPos(g.pacman.pos, g.pacman.dir, 2);
+    aim.x = p.x + (p.x - g.ghost[inky].pos.x);
+    aim.y = p.y + (p.y - g.ghost[inky].pos.y);
+    nn = nearestNeighbor(g, g.ghost[inky].pos, aim);
+    sprintf(c, "%c", g.lab[g.ghost[inky].pos.y][g.ghost[inky].pos.x]);
+    if(c[0] == 'B' || c[0] == 'P' || c[0] == 'I' || c[0] == 'C'){
+        sprintf(c, "%c", ' ');
+    }
+    mvprintw(g.ghost[inky].pos.y, g.ghost[inky].pos.x, c);
+    mvchgat(g.ghost[inky].pos.y, g.ghost[inky].pos.x, 1, A_BOLD, 6, NULL);
+    refresh();
+    g.ghost[inky].pos.y = nn.y;
+    g.ghost[inky].pos.x = nn.x;
+    mvprintw(g.ghost[inky].pos.y, g.ghost[inky].pos.x, "I");
+    mvchgat(g.ghost[inky].pos.y, g.ghost[inky].pos.x, 1, A_BOLD, 3, NULL);
+    refresh();
+    usleep(temp);
+    return g;
 }
 
 /*-------------------------------------------------------*/
@@ -642,6 +638,86 @@ int hipo(int x1, int y1, int x2, int y2) {
 		distb *= -1;
 	hipo = (dista)+(distb);
 	return hipo;
+}
+
+t_pos forwardPos(t_pos start, int direc, int steps) {
+    t_pos r;
+    switch (direc) {
+        case up:
+            r.x = start.x; r.y = start.y - steps;
+            break;
+        case down:
+            r.x = start.x; r.y = start.y + steps;
+            break;
+        case right:
+            r.x = start.x + steps; r.y = start.y;
+            break;
+        case left:
+            r.x = start.x - steps; r.y = start.y;
+            break;
+    }
+    return r;
+}
+
+bool haveGhost(t_game g, int x, int y){
+    int i;
+    for(i=blinky;i<=clyde;i++){
+        if(g.ghost[i].pos.x == x && 
+           g.ghost[i].pos.y == y){
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+
+t_pos nearestNeighbor(t_game g, t_pos p1, t_pos p2){
+    int n = 99999, h;
+    t_pos r;
+    r.x = p1.x;
+    r.y = p1.y;
+    if(g.lab[p1.y][p1.x+1] != '#' &&
+        p1.x + 1 < 19 &&
+        !(p1.x+1 == 16 && p1.y == 10) &&
+        !haveGhost(g, p1.x+1, p1.y)){
+        h = hipo(p1.x+1, p1.y, p2.x, p2.y);
+        if(h < n){
+            n = h;
+            r.x = p1.x+1;
+            r.y = p1.y;            
+        }
+    }
+    if(g.lab[p1.y][p1.x-1] != '#' &&
+        p1.x - 1 > 0 &&
+        !(p1.x-1 == 3 && p1.y == 10) &&
+        !haveGhost(g, p1.x-1, p1.y)){
+        h = hipo(p1.x-1, p1.y, p2.x, p2.y);
+        if(h < n){
+            n = h;
+            r.x = p1.x-1;
+            r.y = p1.y;
+        }
+    }
+    if(g.lab[p1.y+1][p1.x] != '#' &&
+        p1.y + 1 < 22 &&
+        !haveGhost(g, p1.x, p1.y+1)){
+        h = hipo(p1.x, p1.y+1, p2.x, p2.y);
+        if(h < n){
+            n = h;
+            r.x = p1.x;
+            r.y = p1.y+1;
+        }
+    }
+    if(g.lab[p1.y-1][p1.x] != '#' &&
+        p1.y - 1 > 0 &&
+        !haveGhost(g, p1.x, p1.y-1)){
+        h = hipo(p1.x, p1.y-1, p2.x, p2.y);
+        if(h < n){
+            n = h;
+            r.x = p1.x;
+            r.y = p1.y-1;
+        }
+    }
+    return r;
 }
 /* ---------------------------------------------------------------------- */
 
