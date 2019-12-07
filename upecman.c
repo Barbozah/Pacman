@@ -573,12 +573,13 @@ t_game blinkymov(t_game g) {
 /* -------------------------- Movimentaçao do PINKY---------------------------------------------- */
 
 t_game pinkyMov(t_game g) {
+    /*Caso o Pink esteja na posição inicial (10, 9), teleporta ele para fora*/
     if(g.ghost[pinky].pos.x == 10 && 
         g.ghost[pinky].pos.y == 9){
         mvprintw(9, 10, " ");
         mvchgat(9, 10, 1, A_BOLD, 6, NULL);
         refresh();
-        if(haveGhost(g, 10, 7)){
+        if(haveGhost(g, 10, 7)){ /*Se tiver um fantasma naquela posição, escolhe outra*/
             g.ghost[pinky].pos.y = 7;
             g.ghost[pinky].pos.x = 9;
         }else{
@@ -593,19 +594,24 @@ t_game pinkyMov(t_game g) {
     }
     char c[2];
     t_pos nn, p;
+    /*p = recebe 4 posições a frente do pacman, na respectiva direção*/
     p = forwardPos(g.pacman.pos, g.pacman.dir, 4);
+    /*nn = recebe a posição adjacente que fica mais proxima da posição a frente do pacman*/
     nn = nearestNeighbor(g, g.ghost[pinky].pos, p);
+    /*Se a posição do fantasma for a mesma da posição anterior, escolha outra posição mais afastada*/
     if(nn.x == g.ghost[pinky].posAnterior.x && 
         nn.y == g.ghost[pinky].posAnterior.y){
         nn = fartherNeighbor(g, g.ghost[pinky].pos, p);
     }
     sprintf(c, "%c", g.lab[g.ghost[pinky].pos.y][g.ghost[pinky].pos.x]);
+    /*Se passar por cima da posição de algum fantasma no mapa, não exiba novamente*/
     if(c[0] == 'B' || c[0] == 'P' || c[0] == 'I' || c[0] == 'C' || c[0] == '@'){
         sprintf(c, "%c", ' ');
     }
     mvprintw(g.ghost[pinky].pos.y, g.ghost[pinky].pos.x, c);
     mvchgat(g.ghost[pinky].pos.y, g.ghost[pinky].pos.x, 1, A_BOLD, 6, NULL);
     refresh();
+    /*Atualiza a posição do fantasma*/
     g.ghost[pinky].posAnterior = g.ghost[pinky].pos;
     g.ghost[pinky].pos.y = nn.y;
     g.ghost[pinky].pos.x = nn.x;
@@ -619,9 +625,11 @@ t_game pinkyMov(t_game g) {
 /* -------------------------- Movimentaçao do INKY----------------------------------------------- */
 
 t_game inkyMov(t_game g) {
+    /*O Inky só sai da posição original quando o pacman tiver pelo menos 30 pontos*/
     if(g.pacman.score < 30){
         return g;
     }
+    /*Se o Inky estiver na posição inicial, teleporta ele para fora do centro*/
     if(g.ghost[inky].pos.x == 10 && 
         g.ghost[inky].pos.y == 10){
         mvprintw(10, 10, " ");
@@ -641,15 +649,27 @@ t_game inkyMov(t_game g) {
         return g;
     }
     char c[2];
+    /*p = recebe 2 posições a frente do pacman*/
     t_pos nn, aim, p = forwardPos(g.pacman.pos, g.pacman.dir, 2);
-    aim.x = 2*p.x - g.ghost[inky].pos.x;
-    aim.y = 2*p.y - g.ghost[inky].pos.y;
+    /*aim = recebe a posição que deve mirada pelo fantasma.
+        Essa posição será em relação ao fantasma blink e 
+        ao pacman. Calcula o vetor entre a posição posição 
+        do blinky e a posição a frente ao pacman. A posição
+        de mira será a posição com o dobro do tamanho desse
+        vetor.
+    */
+    aim.x = 2*p.x - g.ghost[blinky].pos.x;
+    aim.y = 2*p.y - g.ghost[blinky].pos.y;
+    /*nn = recebe a posição adjacente ao fantasma mais próxima a mira*/
     nn = nearestNeighbor(g, g.ghost[inky].pos, aim);
+    /*Se a posição mira for igual a posição anterior do fantasma, escolhe outra posição*/
     if(nn.x == g.ghost[inky].posAnterior.x && 
         nn.y == g.ghost[inky].posAnterior.y){
         nn = fartherNeighbor(g, g.ghost[inky].pos, aim);
     }
+    /*Caso o fantasma esteja no modo afraid*/
     if(g.ghost[inky].mode == afraid){
+        /*Se o contador do tempo do modo afraid terminou, zera-o*/
         if(g.ghost[inky].afraidCount > STEPSONAFRAID){
             g.ghost[inky].mode = chase;
             g.ghost[inky].afraidCount = 0;
@@ -658,16 +678,19 @@ t_game inkyMov(t_game g) {
         g.ghost[inky].afraidCount++;
     }
     sprintf(c, "%c", g.lab[g.ghost[inky].pos.y][g.ghost[inky].pos.x]);
+    /*Se passar por cima da posição de algum fantasma no mapa, não exiba novamente*/
     if(c[0] == 'B' || c[0] == 'P' || c[0] == 'I' || c[0] == 'C' || c[0] == '@'){
         sprintf(c, "%c", ' ');
     }
     mvprintw(g.ghost[inky].pos.y, g.ghost[inky].pos.x, c);
     mvchgat(g.ghost[inky].pos.y, g.ghost[inky].pos.x, 1, A_BOLD, 6, NULL);
     refresh();
+    /*Atualiza a posição do fantasma*/
     g.ghost[inky].posAnterior = g.ghost[inky].pos;
     g.ghost[inky].pos.y = nn.y;
     g.ghost[inky].pos.x = nn.x;
     mvprintw(g.ghost[inky].pos.y, g.ghost[inky].pos.x, "I");
+    /*Se o fantasma estiver no modo afraid, muda a cor para azul*/
     if(g.ghost[inky].mode == afraid){
         mvchgat(g.ghost[inky].pos.y, g.ghost[inky].pos.x, 1, A_BOLD, 5, NULL);
     }else{
@@ -681,9 +704,11 @@ t_game inkyMov(t_game g) {
 /* -------------------------- Movimentaçao do CLYDE---------------------------------------------- */
 
 t_game clydeMov(t_game g) {
+    /*Clyde só sai da posição inicial se o pacman tiver comido 1/3 dos pontos, total de pontos = 188*/
     if(g.pacman.pellet < 188/3){
         return g;
     }
+    /*Se Clyde estiver na posição inicial, teleporta ele para fora do centro*/
     if(g.ghost[clyde].pos.x == 10 && 
         g.ghost[clyde].pos.y == 11){
         mvprintw(11, 10, " ");
@@ -704,7 +729,9 @@ t_game clydeMov(t_game g) {
     }
     char c[2];
     t_pos nn;
+    /*Caso o fantasma estiver no modo afraid*/
     if(g.ghost[clyde].mode == afraid){
+        /*Se o contador do tempo do modo afraid terminou, zera-o*/
         if(g.ghost[clyde].afraidCount > STEPSONAFRAID){
             g.ghost[clyde].mode = chase;
             g.ghost[clyde].afraidCount = 0;
@@ -713,10 +740,12 @@ t_game clydeMov(t_game g) {
             nn = fartherNeighbor(g, g.ghost[clyde].pos, g.pacman.pos);
             g.ghost[clyde].afraidCount++;
         }
+    /*Se o Clyde estiver a 8 blocos de distancia do pacman ele muda a roda para a posição target dele*/
     }else if(manhattanDistance(g.pacman.pos, g.ghost[clyde].pos) < 8) {
         t_pos aim = g.ghost[clyde].starget;
         nn = nearestNeighbor(g, g.ghost[clyde].pos, aim);
     }else{
+        /*Caso o Clyde estiver a mais de 8 blocos de distancia do pacman, vai em direção a ele*/
         nn = nearestNeighbor(g, g.ghost[clyde].pos, g.pacman.pos);
         if(nn.x == g.ghost[clyde].posAnterior.x && 
             nn.y == g.ghost[clyde].posAnterior.y){
@@ -724,16 +753,19 @@ t_game clydeMov(t_game g) {
         }
     }
     sprintf(c, "%c", g.lab[g.ghost[clyde].pos.y][g.ghost[clyde].pos.x]);
+    /*Se passar por cima da posição de algum fantasma no mapa, não exiba novamente*/
     if(c[0] == 'B' || c[0] == 'P' || c[0] == 'I' || c[0] == 'C' || c[0] == '@'){
         sprintf(c, "%c", ' ');
     }
     mvprintw(g.ghost[clyde].pos.y, g.ghost[clyde].pos.x, c);
     mvchgat(g.ghost[clyde].pos.y, g.ghost[clyde].pos.x, 1, A_BOLD, 6, NULL);
     refresh();
+    /*Atualiza a posição do fantasma*/
     g.ghost[clyde].posAnterior = g.ghost[clyde].pos;
     g.ghost[clyde].pos.y = nn.y;
     g.ghost[clyde].pos.x = nn.x;
     mvprintw(g.ghost[clyde].pos.y, g.ghost[clyde].pos.x, "C");
+    /*Se o fantasma estiver no modo afraid, muda a cor para azul*/
     if(g.ghost[clyde].mode == afraid) {
         mvchgat(g.ghost[clyde].pos.y, g.ghost[clyde].pos.x, 1, A_BOLD, 5, NULL);
     }else{
@@ -757,6 +789,7 @@ int hipo(int x1, int y1, int x2, int y2) {
 	return hipo;
 }
 
+/*Calcula a posição n passos a frete da posição inicial referente a direção*/
 t_pos forwardPos(t_pos start, int direc, int steps) {
     t_pos r;
     switch (direc) {
@@ -776,6 +809,7 @@ t_pos forwardPos(t_pos start, int direc, int steps) {
     return r;
 }
 
+/*Checa se tem algum fantasma em uma posição*/
 bool haveGhost(t_game g, int x, int y){
     int i;
     for(i=blinky;i<=clyde;i++){
@@ -791,6 +825,7 @@ int manhattanDistance(t_pos p1, t_pos p2) {
     return abs(p1.x-p2.x) + abs(p1.y-p2.y);
 }
 
+/*Calcula a posição adjacente a posição 1 mais proxima da posição 2*/
 t_pos nearestNeighbor(t_game g, t_pos p1, t_pos p2) {
     int n = 99999, h;
     t_pos r;
@@ -845,6 +880,7 @@ t_pos nearestNeighbor(t_game g, t_pos p1, t_pos p2) {
     return r;
 }
 
+/*Calcula a posição adjacente a posição 1 mais afastada da posição 2*/
 t_pos fartherNeighbor(t_game g, t_pos p1, t_pos p2) {
     int n = -99999, h;
     t_pos r;
