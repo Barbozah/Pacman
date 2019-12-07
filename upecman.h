@@ -33,7 +33,7 @@
 #define VERSION "20160529.013231" /**< Version Number */
 #endif
 #ifndef bool
-#define bool unsigned short
+#define bool unsigned char
 #endif
 
 /* Debug */
